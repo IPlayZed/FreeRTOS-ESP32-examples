@@ -38,7 +38,6 @@ void readSerial(void *parameters) {
     // Read characters from serial
     if (Serial.available() > 0) {
       led_delay = Serial.parseInt();
-      // Update delay variable and reset buffer if we get a newline character
       Serial.print("Updated LED delay to: ");
       Serial.println(led_delay);
     }
