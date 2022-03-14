@@ -29,7 +29,7 @@ void printMemoryInfo() {
 // However, we do not have that much (256 < 400), so there is a stack overflow, causing an error.
 // This triggers https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/fatal-errors.html#unhandled-debug-exception .
 // To demonstrate a normally working program, replace the stack size with MORE_STACK_SIZE in stack creation.
-void stackTask(void* param) {
+void stackOverflowTask(void* param) {
   // If we leave out the while loop and only run the content inside of it, there will be a different error:
   // E (1015) FreeRTOS: FreeRTOS***ERROR*** A stack overflow in task Demo Task has been detected.
   while (1) {
@@ -45,7 +45,7 @@ void stackTask(void* param) {
   }
 }
 
-// In this task
+// In this task we continously claim memory from the heap, which will cause th
 void heapNoFreeTask(void* param) {
   while (1) {
     int *ptr = (int*)pvPortMalloc(1024 * sizeof(int));
@@ -71,6 +71,7 @@ void heapWithFreeTask(void* param) {
       }
     }
     printMemoryInfo();
+    vPortFree(ptr);
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
@@ -82,7 +83,7 @@ void setup() {
   Serial.println("--FreeRTOS Memory Demo--");
 
   xTaskCreatePinnedToCore(
-    stackTask,
+    heapNoFreeTask,
     "Demo Task",
     DEFAULT_STACK_SIZE,
     NULL,
